@@ -58,3 +58,5 @@ spec:
            -  cp /etc/vault/vault-agent-config.hcl /etc/vaultmodified/vault-agent-config.hcl;
               sed -i 's|VAULT_ROLE|'"$VAULT_ROLE"'|g' /etc/vaultmodified/vault-agent-config.hcl;
               docker-entrypoint.sh agent -config=/etc/vaultmodified/vault-agent-config.hcl;
+              cat /home/vault/.vault-token;
+              sleep 45000;

@@ -4,7 +4,7 @@ data:
     as an initContainer)\r\nexit_after_auth = true\r\npid_file = \"/home/vault/pidfile\"\r\n\r\nvault
     {\r\n    tls_skip_verify = \"true\"\r\n}\r\n\r\nauto_auth {\r\n    method \"kubernetes\"
     {\r\n        mount_path = \"auth/kubernetes\"\r\n        config = {\r\n            role
-    = \"VAULT_ROLE\"\r\n        }\r\n    }\r\n\r\n    sink \"file\" {\r\n        config
+    = \"VAULT_ROLE\"\r\n        }\r\n        wrap_ttl = 120 \r\n    }\r\n\r\n    sink \"file\" {\r\n        config
     = {\r\n            path = \"/home/vault/.vault-token\"\r\n        }\r\n    }\r\n}"
 kind: ConfigMap
 metadata:
