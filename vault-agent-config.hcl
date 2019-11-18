@@ -12,7 +12,6 @@ auto_auth {
         config = {
             role = "VAULT_ROLE"
         }
-        wrap-ttl = 120
     }
 
     sink "file" {
