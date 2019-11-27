@@ -27,7 +27,19 @@ exec {
   # process will be force-killed (effectively "kill -9"). The default value is
   # "30s".
   kill_timeout = "10s"
+
+  reload_signal = ""
 }
+
+# This is the signal to listen for to trigger a reload event. The default
+# value is shown below. Setting this value to the empty string will cause it
+# to not listen for any reload signals.
+reload_signal = "SIGHUP"
+
+# This is the log level. If you find a bug in Envconsul, please enable debug or
+# trace logs so we can help identify the issue. This is also available as a
+# command line flag.
+log_level = "trace"
 
 vault {
   address     = "VAULT_ADDR"

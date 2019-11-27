@@ -21,17 +21,44 @@ spec:
           emptyDir:
             medium: Memory
 
+        - name: envconsul-modified
+          emptyDir:
+            medium: Memory
+
+        - name: consul-template-modified
+          emptyDir:
+            medium: Memory
+
         - name: vaultagent-modified
+          emptyDir:
+            medium: Memory
+
+        - name: channel-keys
           emptyDir:
             medium: Memory
 
         - name: agent-config
           configMap:
-            name: vault-agent-configmap
+            name: vault-agent-config
             items:
               - key: vault-agent-config.hcl
                 path: vault-agent-config.hcl
-      containers:
+
+        - name: envconsul-config
+          configMap:
+            name: envconsul-config
+            items:
+              - key: envconsul-config.hcl
+                path: envconsul-config.hcl
+
+        - name: consul-template-config
+          configMap:
+            name: consul-template-config
+            items:
+              - key: consul-template-config.hcl
+                path: consul-template-config.hcl
+
+      initContainers:
         # Vault container
         - name: vault-agent-auth
           image: vault
@@ -51,12 +78,48 @@ spec:
                   name: vault-addr
                   key: url
             - name: VAULT_ROLE
-              value: examplerole
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: exampleRoleKey
 
           command: ["/bin/sh","-c"]
           args:
            -  cp /etc/vault/vault-agent-config.hcl /etc/vaultmodified/vault-agent-config.hcl;
               sed -i 's|VAULT_ROLE|'"$VAULT_ROLE"'|g' /etc/vaultmodified/vault-agent-config.hcl;
               docker-entrypoint.sh agent -config=/etc/vaultmodified/vault-agent-config.hcl;
-              cat /home/vault/.vault-token;
-              sleep 45000;
+        # Vault container
+        - name: consul-template-config-init
+          image: docker.io/hilmit82/consul-template-config-modifier:1.11.0
+          volumeMounts:
+            - name: consul-template-config
+              mountPath: /etc/consultemplate
+
+            - name: vault-token
+              mountPath: /home/vault
+
+            - name: consul-template-modified
+              mountPath: /etc/consultemplatemodified
+          env:
+            - name: VAULT_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: vault-addr
+                  key: url
+            - name: VAULT_KEY_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: channel-key-path
+                  key: data
+            - name: KEY_DESTINATION_PATH
+              value: "/etc/keys/"
+      containers:
+        - name: consul-template
+          image: docker.io/hilmit82/consul-template-scratch:1.1.0
+          volumeMounts:
+            - name: channel-keys
+              mountPath: /etc/keys
+
+            - name: consul-template-modified
+              mountPath: /etc/config
+                  

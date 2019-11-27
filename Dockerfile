@@ -1,5 +1,5 @@
 # # First stage: start with a Golang base image
-FROM golang:1.12-alpine3.10
+FROM golang
 
 WORKDIR /go/src/hello
 
